@@ -24,9 +24,9 @@ class Database {
     this.dbtable = new db.table(`${this.table}`);
 
     //error handling
-    if (!this.table) return new TypeError("Must specify tableName");
-    if (typeof this.inMemory === true || false)
-      return new Error("Must specify type of memory/storage");
+    if (!this.table) new TypeError("Must specify tableName");
+    if (this.inMemory === true || false)
+      new Error("Must specify type of memory/storage");
   }
   /**
    *
@@ -187,7 +187,7 @@ class Database {
    * @returns
    */
   async cacheSize() {
-    return `Database cache size: ${this.cache.size}`;
+    return this.cache.size;
   }
 }
 
