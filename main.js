@@ -19,7 +19,7 @@ class Database {
 
   constructor(options = {}) {
     this.table = options.tableName;
-    this.inMemory = options.inMemory;
+    this.inMemory = options.inMemory || false;
     this.cache = new Map();
     this.dbtable = new db.table(`${this.table}`);
 
