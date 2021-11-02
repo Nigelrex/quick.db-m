@@ -27,7 +27,6 @@ const Database = require("quick.db-map");
 const db = new Database({ tableName: "abc", inMemory: true }); //inMemory is a boolean so you can choose if your database has to be cached
 db.set("a", "b");
 console.log(db.get("a")); //returns b
-
 ```
 
 ## Credits:
