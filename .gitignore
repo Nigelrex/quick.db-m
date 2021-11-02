@@ -123,5 +123,9 @@ dist
 *.sql.tar.bz2
 *.sql3.tar.bz2
 *.db.tar.xz
+*.db3.tar.xz
+*.sql.tar.xz
+*.sql3.tar.xz
 
 test.js
+.vscode/task.json

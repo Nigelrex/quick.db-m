@@ -1,194 +1,303 @@
-const db = require("quick.db");
+const quickdb = require("quick.db");
+const ms = require("ms");
+const pico = require("picocolors");
 
 /**
  * @extends {Map}
  * @extends {db}
  */
-class Database {
+module.exports = class Database {
   /**
-   * @param {Object} [options]
+   * @param {Object} options - "List of all the options"
    *
-   * @param {String|Required} [options.tableName] (Required) to get the values from the table, Existing table or a New table is created
+   * @param {string|Optional} options.tableName - "The name of the table to create"
    *
-   * @param {Boolean|Required} [options.inMemory] If true stores data in Memory else only in sqlite
+   * @param {String|Optional} options.dbPath - "(Optional) to specify the path of the database, default is ./json.sqlite"
    *
-   * @param {*} [this.cache] this is the cache where the values are stored in memory for fast processing of snippets
+   * @param {Boolean|Optional} options.cache - "(Optional) to use in memory or not, default is false"
    *
-   * @param {*} [this.dbtable] get and set and other functions in values in table
+   * @param {Boolean|Optional} options.clearCache - "Set to true if you want to clear cache"
+   *
+   * @param {Number|Optional} options.maxCacheLimit - "Set maxCacheLimit for clearing cache, defaults to 100"
+   *
+   * @param {String|Optional} options.clearCacheInterval - "Set interval to clear cache (defaults to "5m") [30s 5m 2d 1w 1y]"
+   *
+   * @param {Boolean|Optional} options.verbose - "If true prints the cache size and the cache size after clearing"
+   *
+   * @param {*} this.cache - "This is the cache where the values are stored in memory for fast processing of snippets"
    */
 
   constructor(options = {}) {
     this.table = options.tableName;
-    this.inMemory = options.inMemory || false;
+    this.dbPath = options.dbPath || "./json.sqlite";
+    this.Cache = options.cache || false;
+    this.clearCache = options.clearCache || false;
+    this.maxCacheLimit = options.maxCacheLimit || 100;
+    this.clearCacheInterval = ms(options.clearCacheInterval) || ms("5m");
+    this.verbose = options.verbose || false;
+
+    const db = quickdb(this.dbPath);
     this.cache = new Map();
-    this.dbtable = new db.table(`${this.table}`);
+    this.dbtable = this.table ? new db.table(`${this.table}`) : db;
 
     //error handling
-    if (!this.table) new TypeError("Must specify tableName");
-    if (this.inMemory === true || false)
-      new Error("Must specify type of memory/storage");
-  }
-  /**
-   *
-   * @param {*} key
-   * @param {*} value
-   * @param {*} ops
-   */
-  async set(key, value, ops) {
-    if (this.inMemory) {
-      this.cache.set(key, value, ops || {});
-      this.dbtable.set(key, value, ops || {});
-    } else {
-      this.dbtable.set(key, value, ops || {});
-    }
-  }
+    // Memory \\
+    if (typeof this.Cache !== "boolean")
+      throw new Error(pico.red(`inMemory is typeof "Boolean"`));
 
-  /**
-   *
-   * @param {*} key
-   * @param {*} ops
-   * @returns
-   */
-  async get(key, ops) {
-    if (this.inMemory) {
-      if (this.cache.has(key, ops || {})) {
-        return this.cache.get(key, ops || {});
-      } else {
-        return this.dbtable.get(key, ops || {});
+    if (typeof this.clearCache !== "boolean")
+      throw new Error(pico.red(`clearCache is typeof "Boolean"`));
+
+    if (typeof this.maxCacheLimit !== "number")
+      throw new Error(pico.red(`maxCacheLimit is typeof "number"`));
+
+    // Verbose \\
+    if (typeof this.verbose !== "boolean")
+      throw new Error(pico.red(`Verbose typeof Boolean`));
+
+    if (this.verbose) {
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
+          `DataBase`
+        )}: ${JSON.stringify(this.dbtable)}`
+      );
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`
+      );
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${
+          this.clearCache
+        }`
+      );
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${
+          this.maxCacheLimit
+        }`
+      );
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${
+          this.clearCacheInterval
+        }ms`
+      );
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${
+          this.dbPath
+        }`
+      );
+
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`
+      );
+    }
+
+    //cache values that are in the sqlite file
+    const needCache = this.dbtable.all();
+    needCache.forEach(async (value, key) => {
+      if (this.verbose) {
+        console.log(
+          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
+            `Caching:`
+          )} ${JSON.stringify({
+            ID: value.ID,
+            value: value.data,
+          })}`
+        );
       }
-    } else {
-      return this.dbtable.get(key, ops || {});
+      this.cache.set(value.ID, value.data);
+    });
+    if (this.verbose)
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
+          `Current cache size: `
+        )} ${this.cacheSize()}`
+      );
+
+    //This is used to clear the cache every 5 minutes (By default)
+    if (
+      this.Cache &&
+      this.clearCache &&
+      this.cache.size >= this.maxCacheLimit
+    ) {
+      setInterval(() => {
+        if (this.verbose) {
+          console.log(
+            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`
+          );
+        }
+        this.cache.clear();
+        if (this.verbose)
+          console.log(
+            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${
+              this.cache.size
+            }`
+          );
+      }, this.clearCacheInterval);
     }
   }
 
   /**
    *
-   * @param {*} key
+   * @param {*} key  insert your key
+   * @param {*} value  insert your value
+   * @param {*} ops
+   */
+  set(key, value, ops) {
+    if (this.Cache) this.cache.set(key, value, ops || {});
+    this.dbtable.set(key, value, ops || {});
+  }
+
+  /**
+   *
+   * @param {*} key  insert your key
    * @param {*} ops
    * @returns
    */
-  async has(key, ops) {
-    if (this.inMemory) {
-      if (this.cache.has(key, ops || {})) {
-        return this.cache.has(key, ops || {});
-      } else {
-        return this.dbtable.has(key, ops || {});
-      }
-    } else {
-      return this.dbtable.has(key, ops || {});
+  get(key, ops) {
+    if (this.Cache && this.cache.has(key, ops || {}))
+      return this.cache.get(key, ops || {});
+
+    return this.dbtable.get(key, ops || {});
+  }
+
+  /**
+   *
+   * @param {*} key  insert your key
+   * @param {*} ops
+   * @returns
+   */
+  has(key, ops) {
+    if (this.Cache && this.cache.has(key, ops || {}))
+      return this.cache.has(key, ops || {});
+
+    return this.dbtable.has(key, ops || {});
+  }
+
+  /**
+   *
+   * @param {*} key  insert your key
+   * @param {*} ops
+   */
+  delete(key, ops) {
+    if (this.Cache) this.cache.delete(key, ops || {});
+
+    this.dbtable.delete(key, ops || {});
+  }
+
+  /**
+   * WARNING! This deletes the entire database keys and values
+   *
+   */
+  deleteAll() {
+    this.dbtable.all().forEach((set) => {
+      this.delete(set.ID);
+    });
+  }
+
+  /**
+   *
+   * @param {*} key  insert your key
+   * @param {*} value  insert your value
+   * @param {*} ops
+   * @returns
+   */
+  add(key, value, ops) {
+    let setValue = this.get(key, ops);
+    if (this.Cache) this.cache.set(key, setValue + value, ops || {});
+    this.dbtable.add(key, value, ops || {});
+  }
+
+  /**
+   *
+   * @param {*} key  insert your key
+   * @param {*} value  insert your value
+   * @param {*} ops
+   * @returns
+   */
+  subtract(key, value, ops) {
+    let setValue = this.get(key, ops);
+    if (this.Cache) this.cache.set(key, setValue - value, ops || {});
+    this.dbtable.subtract(key, value, ops || {});
+  }
+
+  /**
+   *
+   * @param {*} ops
+   * @returns
+   */
+  all(ops) {
+    var dbarr = this.dbtable.all(ops || {});
+    const array = [];
+    for (var i = 0; i < dbarr.length; i++) {
+      array.push({
+        ID: dbarr[i].ID,
+        data: dbarr[i].data,
+      });
     }
+    return array;
   }
 
   /**
    *
-   * @param {*} key
-   * @param {*} ops
-   * @returns
-   */
-  async fetch(key, ops) {
-    return this.dbtable.fetch(key, ops || {});
-  }
-
-  /**
-   *
-   * @param {*} key
+   * @param {*} key  insert your key
+   * @param {*} value  insert your value
    * @param {*} ops
    */
-  async delete(key, ops) {
-    if (this.inMemory) {
-      this.cache.delete(key, ops || {});
-      this.dbtable.delete(key, ops || {});
-    } else {
-      this.dbtable.delete(key, ops || {});
-    }
-  }
-
-  /**
-   *
-   * @param {*} key
-   * @param {*} value
-   * @param {*} ops
-   * @returns
-   */
-  async add(key, value, ops) {
-    return this.dbtable.add(key, value, ops || {});
-  }
-
-  /**
-   *
-   * @param {*} key
-   * @param {*} value
-   * @param {*} ops
-   * @returns
-   */
-  async subtract(key, value, ops) {
-    return this.dbtable.subtract(key, value, ops || {});
-  }
-
-  /**
-   *
-   * @param {*} ops
-   * @returns
-   */
-  async all(ops) {
-    return this.dbtable.all(ops || {});
-  }
-
-  /**
-   *
-   * @param {*} key
-   * @param {*} ops
-   * @returns
-   */
-  async fetch(key, ops) {
-    return this.dbtable.fetch(key, ops || {});
-  }
-
-  /**
-   *
-   * @param {*} key
-   * @param {*} ops
-   * @returns
-   */
-  async fetchAll(key, ops) {
-    return this.dbtable.fetch(key, ops || {});
-  }
-
-  /**
-   *
-   * @param {*} key
-   * @param {*} ops
-   * @returns
-   */
-  async includes(key, ops) {
-    return this.dbtable.includes(key, ops || {});
-  }
-
-  /**
-   *
-   * @param {*} key
-   * @param {*} value
-   * @param {*} ops
-   */
-  async push(key, value, ops) {
+  push(key, value, ops) {
     this.dbtable.push(key, value, ops || {});
+    let Push;
+    if (this.Cache) Push === this.get(key);
+    this.cache.set(key, Push);
   }
 
   /**
-   *
-   * @returns
+   * @return clears the cache
    */
-  async clear() {
-    return this.cache.clear();
+  ClearCache() {
+    if (this.Cache) this.cache.clear();
+    if (this.verbose && !this.Cache)
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
+      );
   }
 
   /**
-   *
-   * @returns
+   * reCache the cache (Debugging)
+   * not recomended for repeated looping
    */
-  async cacheSize() {
-    return this.cache.size;
-  }
-}
+  reCache() {
+    if (this.verbose && !this.Cache)
+      return console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
+      );
 
-module.exports = Database;
+    const needCache = this.dbtable.all();
+    needCache.forEach(async (value, key) => {
+      if (this.verbose)
+        console.log(
+          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
+            `Caching:`
+          )} ${JSON.stringify({
+            ID: value.ID,
+            value: value.data,
+          })}`
+        );
+      this.cache.set(value.ID, value.data);
+    });
+    if (this.verbose) {
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`
+      );
+    }
+  }
+
+  /**
+   * @returns the total cache size
+   */
+  cacheSize() {
+    if (this.verbose && !this.Cache) {
+      return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
+        `Did not set caching!`
+      )}`;
+    } else if (this.Cache) return this.cache.size;
+  }
+};
