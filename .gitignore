@@ -129,3 +129,5 @@ dist
 
 test.js
 .vscode/task.json
+.vscode
+backup.js
