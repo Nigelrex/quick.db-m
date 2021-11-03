@@ -1,6 +1,6 @@
 # quick.db-map
 
-A superset of quick.db but with the superpowers of Map
+A wrapper around of quick.db but with the superpowers of Map and many new features
 
 Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database it 8ms faster than normal!
 
