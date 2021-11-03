@@ -2,7 +2,7 @@
   "$schema": "http://json.schemastore.org/package",
   "name": "quick.db-map",
   "description": "quick.db-map is a quick.db extention which allows",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "license": "GPL-3.0",
   "author": "Nigelrex",
   "main": "main.js",

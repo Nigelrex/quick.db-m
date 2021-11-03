@@ -34,7 +34,9 @@ module.exports = class Database {
     this.Cache = options.cache ?? false;
     this.clearCache = options.clearCache ?? false;
     this.maxCacheLimit = options.maxCacheLimit ?? 100;
-    this.clearCacheInterval = ms(options.clearCacheInterval) ?? ms("5m");
+    this.clearCacheInterval = options.clearCacheInterval
+      ? ms(options.clearCacheInterval)
+      : ms("5m");
     this.verbose = options.verbose ?? false;
     fs.ensureDir(this.dbPath.split(/\w+\.\w+/g.exec(this.dbPath).pop())[0]);
     const db = quickdb(this.dbPath);
