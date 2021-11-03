@@ -1,6 +1,6 @@
-const quickdb = require("quick.db");
 const ms = require("ms");
 const pico = require("picocolors");
+const quickdb = require("quick.db");
 
 /**
  * @extends {Map}
@@ -29,18 +29,18 @@ module.exports = class Database {
 
   constructor(options = {}) {
     this.table = options.tableName;
-    this.dbPath = options.dbPath || "./json.sqlite";
-    this.Cache = options.cache || false;
-    this.clearCache = options.clearCache || false;
-    this.maxCacheLimit = options.maxCacheLimit || 100;
-    this.clearCacheInterval = ms(options.clearCacheInterval) || ms("5m");
-    this.verbose = options.verbose || false;
+    this.dbPath = options.dbPath ?? "./json.sqlite";
+    this.Cache = options.cache ?? false;
+    this.clearCache = options.clearCache ?? false;
+    this.maxCacheLimit = options.maxCacheLimit ?? 100;
+    this.clearCacheInterval = ms(options.clearCacheInterval) ?? ms("5m");
+    this.verbose = options.verbose ?? false;
 
     const db = quickdb(this.dbPath);
     this.cache = new Map();
     this.dbtable = this.table ? new db.table(`${this.table}`) : db;
 
-    //error handling
+    // Error handling
     // Memory \\
     if (typeof this.Cache !== "boolean")
       throw new Error(pico.red(`inMemory is typeof "Boolean"`));
@@ -57,37 +57,38 @@ module.exports = class Database {
 
     if (this.verbose) {
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `DataBase`
-        )}: ${JSON.stringify(this.dbtable)}`
+        `${pico.magenta(`[VERBOSE]`)} \
+        ${pico.blue(`DataBase`)}: \
+        ${JSON.stringify(this.dbtable)}`
       );
+
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`);
+
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${
-          this.clearCache
-        }`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${
-          this.maxCacheLimit
-        }`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${
-          this.clearCacheInterval
-        }ms`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${
-          this.dbPath
-        }`
+        `${pico.magenta(`[VERBOSE]`)} \
+        ${pico.blue(`clearCache:`)} \
+        ${this.clearCache}`
       );
 
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`
+        `${pico.magenta(`[VERBOSE]`)} \
+        ${pico.blue(`maxCacheLimit:`)} \
+        ${this.maxCacheLimit}`
       );
+
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} \
+        ${pico.blue(`clearCacheInterval:`)} \
+        ${this.clearCacheInterval}ms`
+      );
+
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} \
+        ${pico.blue(`DataBase Path:`)} \
+        ${this.dbPath}`
+      );
+
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`);
     }
 
     //cache values that are in the sqlite file
@@ -95,42 +96,43 @@ module.exports = class Database {
     needCache.forEach(async (value, key) => {
       if (this.verbose) {
         console.log(
-          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`
-          )} ${JSON.stringify({
-            ID: value.ID,
-            value: value.data,
-          })}`
+          `${pico.magenta(`[VERBOSE]`)} \
+          ${pico.blue(`Caching:`)} \
+          ${JSON.stringify(
+            {
+              ID: value.ID,
+              value: value.data,
+            }
+          )}`
         );
       }
       this.cache.set(value.ID, value.data);
     });
     if (this.verbose)
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `Current cache size: `
-        )} ${this.cacheSize()}`
+        `${pico.magenta(`[VERBOSE]`)} \
+        ${pico.blue(`Current cache size:`)} \
+        ${this.cacheSize()}`
       );
 
     //This is used to clear the cache every 5 minutes (By default)
     if (
-      this.Cache &&
-      this.clearCache &&
+      this.Cache && this.clearCache &&
       this.cache.size >= this.maxCacheLimit
     ) {
       setInterval(() => {
         if (this.verbose) {
-          console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`
-          );
+          console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`);
         }
         this.cache.clear();
-        if (this.verbose)
+
+        if (this.verbose) {
           console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${
-              this.cache.size
-            }`
+            `${pico.magenta(`[VERBOSE]`)} \
+            ${pico.blue(`Current cache size:`)} \
+            ${this.cache.size}`
           );
+        }
       }, this.clearCacheInterval);
     }
   }
@@ -139,48 +141,48 @@ module.exports = class Database {
    *
    * @param {*} key  insert your key
    * @param {*} value  insert your value
-   * @param {*} ops
+   * @param {*} opts
    */
-  set(key, value, ops) {
-    if (this.Cache) this.cache.set(key, value, ops || {});
-    this.dbtable.set(key, value, ops || {});
+  set(key, value, opts) {
+    if (this.Cache) this.cache.set(key, value, opts ?? {});
+    this.dbtable.set(key, value, opts ?? {});
   }
 
   /**
    *
    * @param {*} key  insert your key
-   * @param {*} ops
+   * @param {*} opts
    * @returns
    */
-  get(key, ops) {
-    if (this.Cache && this.cache.has(key, ops || {}))
-      return this.cache.get(key, ops || {});
+  get(key, opts) {
+    if (this.Cache && this.cache.has(key, opts ?? {}))
+      return this.cache.get(key, opts ?? {});
 
-    return this.dbtable.get(key, ops || {});
+    return this.dbtable.get(key, opts ?? {});
   }
 
   /**
    *
    * @param {*} key  insert your key
-   * @param {*} ops
+   * @param {*} opts
    * @returns
    */
-  has(key, ops) {
-    if (this.Cache && this.cache.has(key, ops || {}))
-      return this.cache.has(key, ops || {});
+  has(key, opts) {
+    if (this.Cache && this.cache.has(key, opts ?? {}))
+      return this.cache.has(key, opts ?? {});
 
-    return this.dbtable.has(key, ops || {});
+    return this.dbtable.has(key, opts ?? {});
   }
 
   /**
    *
    * @param {*} key  insert your key
-   * @param {*} ops
+   * @param {*} opts
    */
-  delete(key, ops) {
-    if (this.Cache) this.cache.delete(key, ops || {});
+  delete(key, opts) {
+    if (this.Cache) this.cache.delete(key, opts ?? {});
 
-    this.dbtable.delete(key, ops || {});
+    this.dbtable.delete(key, opts ?? {});
   }
 
   /**
@@ -197,35 +199,35 @@ module.exports = class Database {
    *
    * @param {*} key  insert your key
    * @param {*} value  insert your value
-   * @param {*} ops
+   * @param {*} opts
    * @returns
    */
-  add(key, value, ops) {
-    let setValue = this.get(key, ops);
-    if (this.Cache) this.cache.set(key, setValue + value, ops || {});
-    this.dbtable.add(key, value, ops || {});
+  add(key, value, opts) {
+    let setValue = this.get(key, opts);
+    if (this.Cache) this.cache.set(key, setValue + value, opts ?? {});
+    this.dbtable.add(key, value, opts ?? {});
   }
 
   /**
    *
    * @param {*} key  insert your key
    * @param {*} value  insert your value
-   * @param {*} ops
+   * @param {*} opts
    * @returns
    */
-  subtract(key, value, ops) {
-    let setValue = this.get(key, ops);
-    if (this.Cache) this.cache.set(key, setValue - value, ops || {});
-    this.dbtable.subtract(key, value, ops || {});
+  subtract(key, value, opts) {
+    let setValue = this.get(key, opts);
+    if (this.Cache) this.cache.set(key, setValue - value, opts ?? {});
+    this.dbtable.subtract(key, value, opts ?? {});
   }
 
   /**
    *
-   * @param {*} ops
+   * @param {*} opts
    * @returns
    */
-  all(ops) {
-    var dbarr = this.dbtable.all(ops || {});
+  all(opts) {
+    var dbarr = this.dbtable.all(opts ?? {});
     const array = [];
     for (var i = 0; i < dbarr.length; i++) {
       array.push({
@@ -240,10 +242,10 @@ module.exports = class Database {
    *
    * @param {*} key  insert your key
    * @param {*} value  insert your value
-   * @param {*} ops
+   * @param {*} opts
    */
-  push(key, value, ops) {
-    this.dbtable.push(key, value, ops || {});
+  push(key, value, opts) {
+    this.dbtable.push(key, value, opts ?? {});
     let Push;
     if (this.Cache) Push === this.get(key);
     this.cache.set(key, Push);
@@ -255,38 +257,38 @@ module.exports = class Database {
   ClearCache() {
     if (this.Cache) this.cache.clear();
     if (this.verbose && !this.Cache)
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
-      );
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`);
   }
 
   /**
-   * reCache the cache (Debugging)
-   * not recomended for repeated looping
+   * Recache the cache for debugging.
+   * Not recomended for repeated looping
    */
   reCache() {
-    if (this.verbose && !this.Cache)
-      return console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
-      );
+    if (this.verbose && !this.Cache) {
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`);
+    }
 
     const needCache = this.dbtable.all();
+
     needCache.forEach(async (value, key) => {
-      if (this.verbose)
+      if (this.verbose) {
         console.log(
-          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`
-          )} ${JSON.stringify({
-            ID: value.ID,
-            value: value.data,
-          })}`
+          `${pico.magenta(`[VERBOSE]`)} \
+          ${pico.blue(`Caching:`)} \
+          ${JSON.stringify(
+            {
+              ID: value.ID,
+              value: value.data,
+            }
+          )}`
         );
+      }
       this.cache.set(value.ID, value.data);
     });
+
     if (this.verbose) {
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`
-      );
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`);
     }
   }
 
@@ -295,9 +297,10 @@ module.exports = class Database {
    */
   cacheSize() {
     if (this.verbose && !this.Cache) {
-      return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-        `Did not set caching!`
-      )}`;
-    } else if (this.Cache) return this.cache.size;
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`);
+    }
+    else if (this.Cache) {
+      return this.cache.size;
+    }
   }
 };
