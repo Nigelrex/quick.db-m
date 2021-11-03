@@ -59,35 +59,35 @@ module.exports = class Database {
     if (this.verbose) {
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `DataBase`,
-        )}: ${JSON.stringify(this.dbtable)}`,
+          `DataBase`
+        )}: ${JSON.stringify(this.dbtable)}`
       );
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${
           this.clearCache
-        }`,
+        }`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${
           this.maxCacheLimit
-        }`,
+        }`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${
           this.clearCacheInterval
-        }ms`,
+        }ms`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${
           this.dbPath
-        }`,
+        }`
       );
 
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`
       );
     }
 
@@ -97,11 +97,11 @@ module.exports = class Database {
       if (this.verbose) {
         console.log(
           `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`,
+            `Caching:`
           )} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
-          })}`,
+          })}`
         );
       }
       this.cache.set(value.ID, value.data);
@@ -109,8 +109,8 @@ module.exports = class Database {
     if (this.verbose)
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `Current cache size: `,
-        )} ${this.cacheSize()}`,
+          `Current cache size: `
+        )} ${this.cacheSize()}`
       );
 
     //This is used to clear the cache every 5 minutes (By default)
@@ -122,7 +122,7 @@ module.exports = class Database {
       setInterval(() => {
         if (this.verbose) {
           console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`,
+            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`
           );
         }
         this.cache.clear();
@@ -130,7 +130,7 @@ module.exports = class Database {
           console.log(
             `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${
               this.cache.size
-            }`,
+            }`
           );
       }, this.clearCacheInterval);
     }
@@ -257,7 +257,7 @@ module.exports = class Database {
     if (this.Cache) this.cache.clear();
     if (this.verbose && !this.Cache)
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
       );
   }
 
@@ -268,7 +268,7 @@ module.exports = class Database {
   reCache() {
     if (this.verbose && !this.Cache)
       return console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
       );
 
     const needCache = this.dbtable.all();
@@ -276,17 +276,17 @@ module.exports = class Database {
       if (this.verbose)
         console.log(
           `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`,
+            `Caching:`
           )} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
-          })}`,
+          })}`
         );
       this.cache.set(value.ID, value.data);
     });
     if (this.verbose) {
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`
       );
     }
   }
@@ -297,7 +297,7 @@ module.exports = class Database {
   cacheSize() {
     if (this.verbose && !this.Cache) {
       return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-        `Did not set caching!`,
+        `Did not set caching!`
       )}`;
     } else if (this.Cache) return this.cache.size;
   }
