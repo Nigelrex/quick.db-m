@@ -94,6 +94,10 @@ dist
 # Serverless directories
 .serverless/
 
+# VSCode directories
+.vscode/
+.vscode/tasks.json
+
 # FuseBox cache
 .fusebox/
 
@@ -127,7 +131,10 @@ dist
 *.sql.tar.xz
 *.sql3.tar.xz
 
+
 test.js
 .vscode/task.json
-.vscode
+**/.vscode/
+*/.vscode/
 backup.js
+Databases/

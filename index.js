@@ -11,7 +11,7 @@ module.exports = class Database {
   /**
    * @param {Object} options - "List of all the options"
    *
-   * @param {string|Optional} options.tableName - "The name of the table to create"
+   * @param {String|Optional} options.tableName - "The name of the table to create"
    *
    * @param {String|Optional} options.dbPath - "(Optional) to specify the path of the database, default is ./json.sqlite"
    *
@@ -35,7 +35,7 @@ module.exports = class Database {
     this.clearCache = options.clearCache ?? false;
     this.maxCacheLimit = options.maxCacheLimit ?? 100;
     this.clearCacheInterval = options.clearCacheInterval
-      ? ms(options.clearCacheInterval)
+      ? ms(`${options.clearCacheInterval}`)
       : ms("5m");
     this.verbose = options.verbose ?? false;
     fs.ensureDir(this.dbPath.split(/\w+\.\w+/g.exec(this.dbPath).pop())[0]);
@@ -61,35 +61,35 @@ module.exports = class Database {
     if (this.verbose) {
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `DataBase`
-        )}: ${JSON.stringify(this.dbtable)}`
+          `DataBase`,
+        )}: ${JSON.stringify(this.dbtable)}`,
       );
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`,
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${
           this.clearCache
-        }`
+        }`,
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${
           this.maxCacheLimit
-        }`
+        }`,
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${
           this.clearCacheInterval
-        }ms`
+        }ms`,
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${
           this.dbPath
-        }`
+        }`,
       );
 
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`,
       );
     }
 
@@ -99,11 +99,11 @@ module.exports = class Database {
       if (this.verbose) {
         console.log(
           `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`
+            `Caching:`,
           )} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
-          })}`
+          })}`,
         );
       }
       this.cache.set(value.ID, value.data);
@@ -111,20 +111,21 @@ module.exports = class Database {
     if (this.verbose)
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `Current cache size: `
-        )} ${this.cacheSize()}`
+          `Current cache size: `,
+        )} ${this.cacheSize()}`,
       );
 
     //This is used to clear the cache every 5 minutes (By default)
-    if (
-      this.Cache &&
-      this.clearCache &&
-      this.cache.size >= this.maxCacheLimit
-    ) {
-      setInterval(() => {
+
+    setInterval(() => {
+      if (
+        this.Cache &&
+        this.clearCache &&
+        this.cache.size >= this.maxCacheLimit
+      ) {
         if (this.verbose) {
           console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`
+            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`,
           );
         }
         this.cache.clear();
@@ -132,16 +133,16 @@ module.exports = class Database {
           console.log(
             `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${
               this.cache.size
-            }`
+            }`,
           );
-      }, this.clearCacheInterval);
-    }
+      }
+    }, this.clearCacheInterval);
   }
 
   /**
    *
-   * @param {*} key  insert your key
-   * @param {*} value  insert your value
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
    * @param {*} ops
    */
   set(key, value, ops) {
@@ -151,7 +152,7 @@ module.exports = class Database {
 
   /**
    *
-   * @param {*} key  insert your key
+   * @param {String} key  insert your key
    * @param {*} ops
    * @returns
    */
@@ -164,7 +165,7 @@ module.exports = class Database {
 
   /**
    *
-   * @param {*} key  insert your key
+   * @param {String} key  insert your key
    * @param {*} ops
    * @returns
    */
@@ -177,7 +178,7 @@ module.exports = class Database {
 
   /**
    *
-   * @param {*} key  insert your key
+   * @param {String} key  insert your key
    * @param {*} ops
    */
   delete(key, ops) {
@@ -198,8 +199,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {*} key  insert your key
-   * @param {*} value  insert your value
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
    * @param {*} ops
    * @returns
    */
@@ -211,8 +212,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {*} key  insert your key
-   * @param {*} value  insert your value
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
    * @param {*} ops
    * @returns
    */
@@ -241,8 +242,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {*} key  insert your key
-   * @param {*} value  insert your value
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
    * @param {*} ops
    */
   push(key, value, ops) {
@@ -259,7 +260,7 @@ module.exports = class Database {
     if (this.Cache) this.cache.clear();
     if (this.verbose && !this.Cache)
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`,
       );
   }
 
@@ -270,7 +271,7 @@ module.exports = class Database {
   reCache() {
     if (this.verbose && !this.Cache)
       return console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`,
       );
 
     const needCache = this.dbtable.all();
@@ -278,17 +279,17 @@ module.exports = class Database {
       if (this.verbose)
         console.log(
           `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`
+            `Caching:`,
           )} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
-          })}`
+          })}`,
         );
       this.cache.set(value.ID, value.data);
     });
     if (this.verbose) {
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`
+        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`,
       );
     }
   }
@@ -299,8 +300,50 @@ module.exports = class Database {
   cacheSize() {
     if (this.verbose && !this.Cache) {
       return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-        `Did not set caching!`
+        `Did not set caching!`,
       )}`;
     } else if (this.Cache) return this.cache.size;
+  }
+
+  /**
+   *
+   * @param {String|Optional} name name of your backup file
+   */
+  async backup(name) {
+    const dbName =
+      name.replaceAll(" ", "-") ||
+      `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
+    if (dbName.includes("/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"))
+      throw TypeError(`
+        ${pico.red(
+          `Backup database names cannot include there special characters: `,
+        )}/\\?*":<>`);
+    let paused = false;
+    if (this.verbose) {
+      await this.dbtable.backup(dbName, {
+        progress({ totalPages: t, remainingPages: r }) {
+          console.log(`progress: ${(((t - r) / t) * 100).toFixed(1)}%`);
+          return paused ? 0 : 200;
+        },
+      });
+      return console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.green(
+          `Backedup your Database as:`,
+        )} ${dbName}.sqlite`,
+      );
+    } else await this.dbtable.backup(dbName);
+  }
+
+  /**
+   * Closes the Database and you cannot store keys and values in the database unless you restart your process
+   */
+  close() {
+    this.dbtable.close();
+    if (this.verbose)
+      console.log(
+        `${pico.magenta(`[VERBOSE]`)} ${pico.green(
+          `Successfully closed`,
+        )} ${JSON.stringify(this.dbtable)}`,
+      );
   }
 };

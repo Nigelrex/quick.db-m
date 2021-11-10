@@ -6,7 +6,7 @@ Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database is no
 
 ### Latest Version:
 
-quick.db-map@1.0.7
+quick.db-map@1.0.9
 
 ## Installation
 
@@ -50,6 +50,7 @@ const db = new Database({
   clearCacheInterval: "30s 10m 5h 2d 3w",
   verbose: true,
 }); //maxCacheLimit is the maximum amount of cache that can be stored, clearCacheInterval will override the default 5 minutes interval <30s 10m 5h 2d 3w> [30seconds, 10minutes, 5hours, 2days, 3weeks]
+
 //setting verbose to true will log the events happening
 db.set("a", "b");
 console.log(db.get("a")); //returns b
@@ -68,6 +69,7 @@ const db = new Database({
   clearCacheInterval: "30s 10m 5h 2d 3w",
   verbose: true,
 });
+
 db.set("a", "b"); //sets b in value a
 //Objects and Arrays also work!
 
@@ -100,9 +102,21 @@ db.set("an Array", [1, 2, 3]); //set a value as a array
 db.push("an Array", 4); //adds 4 to the array and returns [1, 2, 3, 4]
 
 db.reCache(); //re-caches the entire database into the cache
+
+db.backup("optional-name-here"); //backups the database into a file
+
+db.close(); //closes the current database
 ```
 
 #
+
+## Changelog
+
+> Tweaked backup feature. Special symbols cannot be used /\\?*":<>
+
+> Added `db.close()` to close the particular database.
+
+> Added `index.d.ts` for typing and hopefully I have done it right! (This won't affect anything mostly)
 
 ## Credits:
 
@@ -111,9 +125,3 @@ db.reCache(); //re-caches the entire database into the cache
 > [quick.db Website](https://quickdb.js.org) For vanilla documentation
 
 > [quick.db Discord server](https://discord.gg/plexidev) Join it seriously
-
-## Support
-
-I work on these projects in my spare time, if you'd like to support me, you can do so via [Patreon! ❤️](https://www.patreon.com/lorencerri). Support quick.db!
-
-Support quick.db!
