@@ -6,7 +6,7 @@ Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database is no
 
 ### Latest Version:
 
-quick.db-map@1.0.9
+quick.db-map@1.0.90
 
 ## Installation
 
