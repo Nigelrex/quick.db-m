@@ -136,5 +136,7 @@ test.js
 .vscode/task.json
 **/.vscode/
 */.vscode/
+./.vscode/
 backup.js
 Databases/
+**/.vscode/**

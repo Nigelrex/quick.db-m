@@ -2,6 +2,7 @@ const quickdb = require("quick.db");
 const ms = require("ms");
 const pico = require("picocolors");
 const fs = require("fs-extra");
+const moment = require("moment");
 
 /**
  * @extends {Map}
@@ -23,21 +24,28 @@ module.exports = class Database {
    *
    * @param {String|Optional} options.clearCacheInterval - "Set interval to clear cache (defaults to "5m") [30s 5m 2d 1w 1y]"
    *
+   * @param {String|Optional} options.expiryInterval - "Set interval to clear cache (defaults to "5s") [30s 5m 2d 1w 1y]"
+   *
    * @param {Boolean|Optional} options.verbose - "If true prints the cache size and the cache size after clearing"
    *
    * @param {*} this.cache - "This is the cache where the values are stored in memory for fast processing of snippets"
    */
 
   constructor(options = {}) {
+    //start of options
     this.table = options.tableName;
-    this.dbPath = options.dbPath ?? "./json.sqlite";
-    this.Cache = options.cache ?? false;
-    this.clearCache = options.clearCache ?? false;
-    this.maxCacheLimit = options.maxCacheLimit ?? 100;
+    this.dbPath = options.dbPath ? options.dbPath : "./json.sqlite";
+    this.Cache = options.cache ? options.cache : false;
+    this.clearCache = options.clearCache ? options.clearCache : false;
+    this.maxCacheLimit = options.maxCacheLimit ? options.maxCacheLimit : 100;
     this.clearCacheInterval = options.clearCacheInterval
       ? ms(`${options.clearCacheInterval}`)
       : ms("5m");
-    this.verbose = options.verbose ?? false;
+    this.expiryInterval = options.expiryInterval
+      ? ms(`${options.expiryInterval}`)
+      : ms("5s");
+    this.verbose = options.verbose ? options.verbose : false;
+    //end of options
     fs.ensureDir(this.dbPath.split(/\w+\.\w+/g.exec(this.dbPath).pop())[0]);
     const db = quickdb(this.dbPath);
     this.cache = new Map();
@@ -61,49 +69,49 @@ module.exports = class Database {
     if (this.verbose) {
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `DataBase`,
-        )}: ${JSON.stringify(this.dbtable)}`,
+          `DataBase`
+        )}: ${JSON.stringify(this.dbtable)}`
       );
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${
           this.clearCache
-        }`,
+        }`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${
           this.maxCacheLimit
-        }`,
+        }`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${
           this.clearCacheInterval
-        }ms`,
+        }ms`
       );
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${
           this.dbPath
-        }`,
+        }`
       );
 
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`
       );
     }
 
     //cache values that are in the sqlite file
-    const needCache = this.dbtable.all();
+    const needCache = this.all();
     needCache.forEach(async (value, key) => {
       if (this.verbose) {
         console.log(
           `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`,
+            `Caching:`
           )} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
-          })}`,
+          })}`
         );
       }
       this.cache.set(value.ID, value.data);
@@ -111,8 +119,8 @@ module.exports = class Database {
     if (this.verbose)
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `Current cache size: `,
-        )} ${this.cacheSize()}`,
+          `Current cache size: `
+        )} ${this.cacheSize()}`
       );
 
     //This is used to clear the cache every 5 minutes (By default)
@@ -125,7 +133,7 @@ module.exports = class Database {
       ) {
         if (this.verbose) {
           console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`,
+            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`
           );
         }
         this.cache.clear();
@@ -133,58 +141,85 @@ module.exports = class Database {
           console.log(
             `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${
               this.cache.size
-            }`,
+            }`
           );
       }
     }, this.clearCacheInterval);
+
+    //delete expiry keys, values
+    setInterval(() => {
+      var dbarr = this.dbtable.all();
+      const array = [];
+      for (var i = 0; i < dbarr.length; i++) {
+        array.push({
+          ID: dbarr[i].ID,
+          data: dbarr[i].data,
+        });
+      }
+      array.forEach(async (ID, data) => {
+        if (ID.data.expiry < moment().unix()) this.delete(ID.ID);
+      });
+    }, this.expiryInterval);
   }
 
   /**
    *
-   * @param {String} key  insert your key
-   * @param {String} value  insert your value
+   * @param {String} key  "insert your key"
+   * @param {String} value  "insert your value"
    * @param {*} ops
    */
   set(key, value, ops) {
-    if (this.Cache) this.cache.set(key, value, ops ?? {});
-    this.dbtable.set(key, value, ops ?? {});
+    if (this.Cache) this.cache.set(key, value, ops || {});
+    this.dbtable.set(key, value, ops || {});
   }
 
   /**
    *
-   * @param {String} key  insert your key
+   * @param {*} key "The value you want to set the expiry on"
+   * @param {*} value "The expiry should go like { y:2010, M:3, d:5, h:15, m:10, s:3, ms:12} or { years:2010, months:3, days:5, hours:15, minutes:10, s:3, miliseconds:123}"
+   */
+
+  async expiry(key, value, ops) {
+    if (typeof value !== "object")
+      throw new Error(pico.red(`value is typeof "object"`));
+    this.set(`${key}.expiry`, moment(new Date()).add(value).unix(), ops || {});
+  }
+
+  /**
+   *
+   * @param {String} key  "insert your key"
    * @param {*} ops
    * @returns
    */
   get(key, ops) {
-    if (this.Cache && this.cache.has(key, ops ?? {}))
-      return this.cache.get(key, ops ?? {});
+    if (this.Cache && this.cache.has(key, ops || {}))
+      return this.cache.get(key, ops || {});
 
-    return this.dbtable.get(key, ops ?? {});
+    return this.dbtable.get(key, ops || {});
   }
 
   /**
    *
-   * @param {String} key  insert your key
+   * @param {String} key  "insert your key"
    * @param {*} ops
    * @returns
    */
   has(key, ops) {
-    if (this.Cache && this.cache.has(key, ops ?? {}))
-      return this.cache.has(key, ops ?? {});
+    if (this.Cache && this.cache.has(key, ops || {}))
+      return this.cache.has(key, ops || {});
 
-    return this.dbtable.has(key, ops ?? {});
+    return this.dbtable.has(key, ops || {});
   }
 
   /**
    *
-   * @param {String} key  insert your key
+   * @param {String} key  "insert your key"
    * @param {*} ops
    */
   delete(key, ops) {
-    if (this.Cache) this.cache.delete(key, ops ?? {});
+    if (this.Cache) this.cache.delete(key, ops || {});
 
-    this.dbtable.delete(key, ops ?? {});
+    this.dbtable.delete(key, ops || {});
   }
 
   /**
@@ -199,28 +234,28 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  insert your key
-   * @param {String} value  insert your value
+   * @param {String} key  "insert your key"
+   * @param {String} value  "insert your value"
    * @param {*} ops
    * @returns
    */
   add(key, value, ops) {
     let setValue = this.get(key, ops);
-    if (this.Cache) this.cache.set(key, setValue + value, ops ?? {});
-    this.dbtable.add(key, value, ops ?? {});
+    if (this.Cache) this.cache.set(key, setValue + value, ops || {});
+    this.dbtable.add(key, value, ops || {});
   }
 
   /**
    *
-   * @param {String} key  insert your key
-   * @param {String} value  insert your value
+   * @param {String} key  "insert your key"
+   * @param {String} value  "insert your value"
    * @param {*} ops
    * @returns
    */
   subtract(key, value, ops) {
     let setValue = this.get(key, ops);
-    if (this.Cache) this.cache.set(key, setValue - value, ops ?? {});
-    this.dbtable.subtract(key, value, ops ?? {});
+    if (this.Cache) this.cache.set(key, setValue - value, ops || {});
+    this.dbtable.subtract(key, value, ops || {});
   }
 
   /**
@@ -229,7 +264,7 @@ module.exports = class Database {
    * @returns
    */
   all(ops) {
-    var dbarr = this.dbtable.all(ops ?? {});
+    var dbarr = this.dbtable.all(ops || {});
     const array = [];
     for (var i = 0; i < dbarr.length; i++) {
       array.push({
@@ -242,12 +277,12 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  insert your key
-   * @param {String} value  insert your value
+   * @param {String} key  "insert your key"
+   * @param {String} value  "insert your value"
    * @param {*} ops
    */
   push(key, value, ops) {
-    this.dbtable.push(key, value, ops ?? {});
+    this.dbtable.push(key, value, ops || {});
     let Push;
     if (this.Cache) Push === this.get(key);
     this.cache.set(key, Push);
@@ -260,7 +295,7 @@ module.exports = class Database {
     if (this.Cache) this.cache.clear();
     if (this.verbose && !this.Cache)
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
       );
   }
 
@@ -271,7 +306,7 @@ module.exports = class Database {
   reCache() {
     if (this.verbose && !this.Cache)
       return console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
       );
 
     const needCache = this.dbtable.all();
@@ -279,17 +314,17 @@ module.exports = class Database {
       if (this.verbose)
         console.log(
           `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`,
+            `Caching:`
           )} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
-          })}`,
+          })}`
         );
       this.cache.set(value.ID, value.data);
     });
     if (this.verbose) {
       console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`,
+        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`
       );
     }
   }
@@ -300,7 +335,7 @@ module.exports = class Database {
   cacheSize() {
     if (this.verbose && !this.Cache) {
       return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-        `Did not set caching!`,
+        `Did not set caching!`
       )}`;
     } else if (this.Cache) return this.cache.size;
   }
@@ -316,7 +351,7 @@ module.exports = class Database {
     if (dbName.includes("/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"))
       throw TypeError(`
         ${pico.red(
-          `Backup database names cannot include there special characters: `,
+          `Backup database names cannot include there special characters: `
         )}/\\?*":<>`);
     let paused = false;
     if (this.verbose) {
@@ -328,8 +363,8 @@ module.exports = class Database {
       });
       return console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.green(
-          `Backedup your Database as:`,
-        )} ${dbName}.sqlite`,
+          `Backedup your Database as:`
+        )} ${dbName}.sqlite`
       );
     } else await this.dbtable.backup(dbName);
   }
@@ -342,8 +377,8 @@ module.exports = class Database {
     if (this.verbose)
       console.log(
         `${pico.magenta(`[VERBOSE]`)} ${pico.green(
-          `Successfully closed`,
-        )} ${JSON.stringify(this.dbtable)}`,
+          `Successfully closed`
+        )} ${JSON.stringify(this.dbtable)}`
       );
   }
 };

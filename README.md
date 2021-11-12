@@ -6,7 +6,7 @@ Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database is no
 
 ### Latest Version:
 
-quick.db-map@1.0.90
+quick.db-map@1.0.10
 
 ## Installation
 
@@ -61,12 +61,13 @@ Other functions
 ```js
 const Database = require("quick.db-map");
 const db = new Database({
-  dbPath: "./Databases/mydatabasename.sqlite",
+  dbPath: "./Databases/mydatabasename.db",
   tableName: "abc",
   cache: true,
   clearCache: true,
-  maxCacheLimit: 250,
-  clearCacheInterval: "30s 10m 5h 2d 3w",
+  maxCacheLimit: 1,
+  clearCacheInterval: "4s",
+  expiryInterval: "20s",
   verbose: true,
 });
 
@@ -83,9 +84,11 @@ db.has("a"); //returns false
 
 db.set("a", { a: "b" }); //sets b in value a in the object
 
+db.set("a.b", "abc"); //sets this as an object
+
 db.deleteAll(); //WARNING! clears the entire database
 
-db.clear(); //Clears the database
+db.ClearCache(); //Clears the database
 
 db.cacheSize(); //returns the size of the cache
 
@@ -95,28 +98,28 @@ db.add("arandomnumber", 20); //adds 1+20 to the value of arandomnumber and retur
 
 db.subtract("arandomnumber", 10); //subtracts 10 from the value of arandomnumber and returns 11
 
-db.all(); //returns all the values in the database
-
 db.set("an Array", [1, 2, 3]); //set a value as a array
 
 db.push("an Array", 4); //adds 4 to the array and returns [1, 2, 3, 4]
 
 db.reCache(); //re-caches the entire database into the cache
 
-db.backup("optional-name-here"); //backups the database into a file
+db.backup("MY DATABASE"); //backup the database
 
-db.close(); //closes the current database
+db.expiry("a", { m: 2 }); // expiry goes like this as Object only { y:2010, M:3, d:5, h:15, m:10, s:3, ms:123}
+
+console.log(db.all()); //returns all the values in the database
+
+db.close(); //closes the database, does not allow any further operations
 ```
 
 #
 
 ## Changelog
 
-> Tweaked backup feature. Special symbols cannot be used /\\?*":<>
+> Removed typings since I am not good at it ¯\\_(ツ)_/¯
 
-> Added `db.close()` to close the particular database.
-
-> Added `index.d.ts` for typing and hopefully I have done it right! (This won't affect anything mostly)
+> Added expiry feature, this will allow you to set an expiry value for a key and it will delete it after the expiry time, and no need to worry about the expiry getting lost after restart, since the expiry value is stored in the key value!
 
 ## Credits:
 
