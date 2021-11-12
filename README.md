@@ -5,8 +5,8 @@ A wrapper around of quick.db but with the superpowers of `Map` and many new feat
 Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database is now 8ms faster than normal!
 
 <p align="center">
-[!Stars](https://img.shields.io/github/stars/nigelrex/quick.db-map?color=red&label=Repo%20Stars&style=for-the-badge)
-[!Downloads](https://img.shields.io/npm/dt/quick.db-map?color=red&label=Downloads%20Stars&style=for-the-badge)
+![Stars](https://img.shields.io/github/stars/nigelrex/quick.db-map?color=red&label=Repo%20Stars&style=for-the-badge)
+![Downloads](https://img.shields.io/npm/dt/quick.db-map?color=red&label=Downloads%20Stars&style=for-the-badge)
 </p>
 
 ### Table of Contents
