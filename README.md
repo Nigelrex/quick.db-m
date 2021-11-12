@@ -4,9 +4,26 @@ A wrapper around of quick.db but with the superpowers of `Map` and many new feat
 
 Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database is now 8ms faster than normal!
 
+<p align="center">
+[!Stars](https://img.shields.io/github/stars/nigelrex/quick.db-map?color=red&label=Repo%20Stars&style=for-the-badge)
+[!Downloads](https://img.shields.io/npm/dt/quick.db-map?color=red&label=Downloads%20Stars&style=for-the-badge)
+</p>
+
+### Table of Contents
+- [Installation](#installation)
+- [Credits](#credits)
+
 ### Latest Version:
 
 quick.db-map@1.0.10
+
+## Credits
+
+> [quick.db](https://npmjs.com/package/quick.db) Install this too in your dependencies
+
+> [quick.db Website](https://quickdb.js.org) For vanilla documentation
+
+> [quick.db Discord server](https://discord.gg/plexidev) Join it seriously
 
 ## Installation
 
@@ -56,7 +73,7 @@ db.set("a", "b");
 console.log(db.get("a")); //returns b
 ```
 
-Other functions
+All Functions
 
 ```js
 const Database = require("quick.db-map");
@@ -121,10 +138,4 @@ db.close(); //closes the database, does not allow any further operations
 
 > Added expiry feature, this will allow you to set an expiry value for a key and it will delete it after the expiry time, and no need to worry about the expiry getting lost after restart, since the expiry value is stored in the key value!
 
-## Credits:
 
-> [quick.db](https://npmjs.com/package/quick.db) Install this too in your dependencies
-
-> [quick.db Website](https://quickdb.js.org) For vanilla documentation
-
-> [quick.db Discord server](https://discord.gg/plexidev) Join it seriously
