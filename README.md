@@ -1,18 +1,17 @@
-# quick.db-map
-
-A wrapper around of quick.db but with the superpowers of `Map` and many new features.
-
-Thanks to [quick.db](https://npmjs.com/package/quick.db) now your database is now 8ms faster than normal!
-
-<p align="center">
+<div align="center">
+<img src="./logo.png" align="center">
+<br>
+<strong>A wrapper around of quick.db but with the superpowers of <i>Map</i> and many new features.</strong>
+<br>
+<br>
 <img src="https://img.shields.io/github/stars/nigelrex/quick.db-map?color=red&label=Repo%20Stars&style=for-the-badge" /> 
-<img src="https://img.shields.io/npm/dt/quick.db-map?color=red&label=Downloads%20Stars&style=for-the-badge" /> 
-  
-</p>
+<br>
+</div>
 
 ### Table of Contents
 - [Installation](#installation)
 - [Credits](#credits)
+- [Changelog](#changelog)
 
 ### Latest Version:
 
