@@ -9,6 +9,7 @@
 </div>
 
 ### Table of Contents
+
 - [Installation](#installation)
 - [Credits](#credits)
 - [Changelog](#changelog)
@@ -137,5 +138,3 @@ db.close(); //closes the database, does not allow any further operations
 > Removed typings since I am not good at it ¯\\_(ツ)_/¯
 
 > Added expiry feature, this will allow you to set an expiry value for a key and it will delete it after the expiry time, and no need to worry about the expiry getting lost after restart, since the expiry value is stored in the key value!
-
-
