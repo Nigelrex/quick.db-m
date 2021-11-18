@@ -1,2 +1,10 @@
 ./.vscode/*
 **/.vscode/**
+./Databases/*
+*.sqlite
+*.db
+./test.js
+test.js
+MY-DATABASE.sqlite
+mydatabasename.db
+*.tgz

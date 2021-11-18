@@ -23,8 +23,7 @@
   ],
   "scripts": {
     "test": "nodemon test.js",
-    "prettier": "prettier --write .",
-    "publish": "npm publish"
+    "publish": "prettier --write . && npm publish"
   },
   "engines": {
     "node": ">=16.6.0",
