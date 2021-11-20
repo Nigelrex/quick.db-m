@@ -348,7 +348,7 @@ module.exports = class Database {
    */
   async backup(name) {
     const dbName =
-      name.replaceAll(" ", "-") ||
+      name.split(" ").join("-") ||
       `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
     if (dbName.includes("/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"))
       throw TypeError(`
