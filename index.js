@@ -346,15 +346,25 @@ module.exports = class Database {
    *
    * @param {String|Optional} name name of your backup file
    */
-  async backup(name) {
-    const dbName =
-      name.split(" ").join("-") ||
-      `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
-    if (dbName.includes("/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"))
+  async backup(options = {}) {
+    if (!options.name)
+      options.name = `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
+    if (!options.path) options.path = "./";
+
+    if (options.path.slice(-1) !== "/") options.path += "/";
+
+    if (
+      options.name.includes(
+        "/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"
+      )
+    )
       throw TypeError(`
         ${pico.red(
           `Backup database names cannot include there special characters: `
         )}/\\?*":<>`);
+
+    const dbName = options.path + options.name;
+
     let paused = false;
     if (this.verbose) {
       await this.dbtable.backup(dbName, {
