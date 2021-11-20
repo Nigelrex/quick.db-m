@@ -352,6 +352,8 @@ module.exports = class Database {
     if (!options.path) options.path = "./";
 
     if (options.path.slice(-1) !== "/") options.path += "/";
+    
+    options.name = options.name.split(" ").join("-");
 
     if (
       options.name.includes(
