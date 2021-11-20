@@ -349,7 +349,7 @@ module.exports = class Database {
   async backup(options = {}) {
     if (!options.name)
       options.name = `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
-    if (!options.path) options.path = "/";
+    if (!options.path) options.path = "./";
 
     if (options.path.slice(-1) !== "/") options.path += "/";
 
