@@ -8,3 +8,6 @@ test.js
 MY-DATABASE.sqlite
 mydatabasename.db
 *.tgz
+./build/*
+./build/**
+**/build/*

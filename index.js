@@ -289,8 +289,46 @@ module.exports = class Database {
     if (this.Cache) Push === this.get(key);
     this.cache.set(key, Push);
   }
+  /**
+   * @param {String} key  "insert your key"
+   * @param {String} value  "insert your value"
+   * @param {*} ops
+   */
+  pull(key, value, ops) {
+    const array = this.dbtable.get(key, ops || {});
+    if (!Array.isArray(array))
+      throw new Error(pico.red(`${key} is not an array`));
+    array.forEach((Value, Index) => {
+      if (value === Value) {
+        array.splice(Index, 1);
+      }
+    });
+    return array;
+  }
 
-  pull() {}
+  /**
+   * @param {String} key  "insert your key"
+   * @param {*} ops
+   */
+  sort(key, ops) {
+    const array = this.dbtable.get(key, ops || {});
+    if (!Array.isArray(array))
+      throw new Error(pico.red(`${key} is not an array`));
+    array.sort((a, b) => (a > b ? 1 : -1));
+    return array;
+  }
+
+  /**
+   * @param {String} key  "insert your key"
+   * @param {*} ops
+   */
+  reverse(key, ops) {
+    const array = this.dbtable.get(key, ops || {});
+    if (!Array.isArray(array))
+      throw new Error(pico.red(`${key} is not an array`));
+    array.reverse();
+    return array;
+  }
 
   /**
    * @return clears the cache
@@ -350,16 +388,17 @@ module.exports = class Database {
    */
   async backup(options = {}) {
     if (!options.name)
-      options.name = `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
-    if (!options.path) options.path = "./";
+      options.name ===
+        `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
+    if (!options.path) options.path === "./";
 
     if (options.path.slice(-1) !== "/") options.path += "/";
-    
+
     options.name = options.name.split(" ").join("-");
 
     if (
       options.name.includes(
-        "/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"
+        "/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">",
       )
     )
       throw TypeError(`

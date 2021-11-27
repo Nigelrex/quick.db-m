@@ -140,3 +140,4 @@ test.js
 backup.js
 Databases/
 **/.vscode/**
+./build/
