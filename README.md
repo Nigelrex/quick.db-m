@@ -116,25 +116,25 @@ db.add("arandomnumber", 20); //adds 1+20 to the value of arandomnumber and retur
 
 db.subtract("arandomnumber", 10); //subtracts 10 from the value of arandomnumber and returns 11
 
-db.set("an Array", [1, 2, 3]); //set a value as a array
+db.set("an Array", [1, 2, 3, "b r u h meme", 6, 8, 2, 5, 7, 3, "meme bro?"]); //set a value as a array
 
 db.push("an Array", 4); //adds 4 to the array and returns [1, 2, 3, 4]
 
 db.reCache(); //re-caches the entire database into the cache
 
-db.backup("MY DATABASE"); //backup the database
+db.backup({ name: "MY DATABASE", path: "./" }); //backup the database
 
-db.expiry("a", { m: 2 }); // expiry goes like this as Object only { y:2010, M:3, d:5, h:15, m:10, s:3, ms:123}
+db.expiry("a", { m: 2 }); // expiry goes like this as Object only "{ y:2010, M:3, d:5, h:15, m:10, s:3, ms:12}" or "{ years:2010, months:3, days:5, hours:15, minutes:10, s:3, miliseconds:123}" and deletes "a" after 2 months
 
-console.log(db.all()); //returns all the values in the database
+console.log(db.pull("an Array", "b r u h meme")); // removes "b r u h meme" from the array
 
-db.close(); //closes the database, does not allow any further operations
+console.log(db.sort("an Array")); // sorts the array and returns "Strings" in the first and then the "Numbers"
+
+console.log(db.reverse("an Array")); // reverses the array
 ```
 
 #
 
 ## Changelog
 
-> Removed typings since I am not good at it ¯\\_(ツ)_/¯
-
-> Added expiry feature, this will allow you to set an expiry value for a key and it will delete it after the expiry time, and no need to worry about the expiry getting lost after restart, since the expiry value is stored in the key value!
+> Added Pull, sort and reverse All Array related features
