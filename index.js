@@ -3,6 +3,7 @@ const ms = require("ms");
 const pico = require("picocolors");
 const fs = require("fs-extra");
 const moment = require("moment");
+const _ = require("lodash");
 
 /**
  * @extends {Map}
@@ -34,71 +35,38 @@ module.exports = class Database {
   constructor(options = {}) {
     //start of options
     this.table = options.tableName;
-    this.dbPath = options.dbPath ? options.dbPath : "./json.sqlite";
-    this.Cache = options.cache ? options.cache : false;
-    this.clearCache = options.clearCache ? options.clearCache : false;
-    this.maxCacheLimit = options.maxCacheLimit ? options.maxCacheLimit : 100;
-    this.clearCacheInterval = options.clearCacheInterval
-      ? ms(`${options.clearCacheInterval}`)
-      : ms("5m");
-    this.expiryInterval = options.expiryInterval
-      ? ms(`${options.expiryInterval}`)
-      : ms("5s");
+    this.dbPath = options.dbPath ?? "./json.sqlite";
+    this.Cache = options.cache ?? false;
+    this.clearCache = options.clearCache ?? false;
+    this.maxCacheLimit = options.maxCacheLimit ?? 100;
+    this.clearCacheInterval = options.clearCacheInterval ? ms(`${options.clearCacheInterval}`) : ms("5m");
+    this.expiryInterval = options.expiryInterval ? ms(`${options.expiryInterval}`) : ms("5s");
     this.verbose = options.verbose ? options.verbose : false;
     //end of options
     fs.ensureDir(this.dbPath.split(/\w+\.\w+/g.exec(this.dbPath).pop())[0]);
     const db = quickdb(this.dbPath);
     this.cache = new Map();
     this.dbtable = this.table ? new db.table(`${this.table}`) : db;
-
     // Error handling
     // Memory \\
-    if (typeof this.Cache !== "boolean")
-      throw new Error(pico.red(`inMemory is typeof "Boolean"`));
+    if (typeof this.Cache !== "boolean") throw new Error(pico.red(`inMemory is typeof "Boolean"`));
 
-    if (typeof this.clearCache !== "boolean")
-      throw new Error(pico.red(`clearCache is typeof "Boolean"`));
+    if (typeof this.clearCache !== "boolean") throw new Error(pico.red(`clearCache is typeof "Boolean"`));
 
-    if (typeof this.maxCacheLimit !== "number")
-      throw new Error(pico.red(`maxCacheLimit is typeof "number"`));
+    if (typeof this.maxCacheLimit !== "number") throw new Error(pico.red(`maxCacheLimit is typeof "number"`));
 
     // Verbose \\
-    if (typeof this.verbose !== "boolean")
-      throw new Error(pico.red(`Verbose typeof Boolean`));
+    if (typeof this.verbose !== "boolean") throw new Error(pico.red(`Verbose typeof Boolean`));
 
     if (this.verbose) {
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `DataBase`
-        )}: ${JSON.stringify(this.dbtable)}`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${
-          this.clearCache
-        }`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${
-          this.maxCacheLimit
-        }`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${
-          this.clearCacheInterval
-        }ms`
-      );
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${
-          this.dbPath
-        }`
-      );
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase`)}: ${JSON.stringify(this.dbtable)}`);
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Cache:`)} ${this.Cache}`);
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCache:`)} ${this.clearCache}`);
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`maxCacheLimit:`)} ${this.maxCacheLimit}`);
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`clearCacheInterval:`)} ${this.clearCacheInterval}ms`);
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`DataBase Path:`)} ${this.dbPath}`);
 
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`
-      );
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Verbose:`)} ${this.verbose}`);
     }
 
     //cache values that are in the sqlite file
@@ -106,9 +74,7 @@ module.exports = class Database {
     needCache.forEach(async (value, key) => {
       if (this.verbose) {
         console.log(
-          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`
-          )} ${JSON.stringify({
+          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Caching:`)} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
           })}`
@@ -116,33 +82,17 @@ module.exports = class Database {
       }
       this.cache.set(value.ID, value.data);
     });
-    if (this.verbose)
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-          `Current cache size: `
-        )} ${this.cacheSize()}`
-      );
+    if (this.verbose) console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size: `)} ${this.cacheSize()}`);
 
     //This is used to clear the cache every 5 minutes (By default)
 
     setInterval(() => {
-      if (
-        this.Cache &&
-        this.clearCache &&
-        this.cache.size >= this.maxCacheLimit
-      ) {
+      if (this.Cache && this.clearCache && this.cache.size >= this.maxCacheLimit) {
         if (this.verbose) {
-          console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`
-          );
+          console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Clearing cache`)}`);
         }
         this.cache.clear();
-        if (this.verbose)
-          console.log(
-            `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${
-              this.cache.size
-            }`
-          );
+        if (this.verbose) console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Current cache size:`)} ${this.cache.size}`);
       }
     }, this.clearCacheInterval);
 
@@ -163,16 +113,24 @@ module.exports = class Database {
       });
     }, this.expiryInterval);
   }
+  /**
+   * @private
+   * @param {String} code
+   * @returns code
+   */
+  __async(code) {
+    return await code;
+  }
 
   /**
    *
    * @param {String} key  "insert your key"
    * @param {String} value  "insert your value"
-   * @param {*} ops
+
    */
-  set(key, value, ops) {
-    if (this.Cache) this.cache.set(key, value, ops || {});
-    this.dbtable.set(key, value, ops || {});
+  set(key, value) {
+    if (this.Cache) this.cache.set(key, value, {});
+    this.dbtable.set(key, value, {});
   }
 
   /**
@@ -181,47 +139,44 @@ module.exports = class Database {
    * @param {*} value "The expiry should go like { y:2010, M:3, d:5, h:15, m:10, s:3, ms:12} or { years:2010, months:3, days:5, hours:15, minutes:10, s:3, miliseconds:123}"
    */
 
-  async expiry(key, value, ops) {
-    if (typeof value !== "object")
-      throw new Error(pico.red(`value is typeof "object"`));
-    this.set(`${key}.expiry`, moment(new Date()).add(value).unix(), ops || {});
+  async expiry(key, value) {
+    if (typeof value !== "object") throw new Error(pico.red(`value is typeof "object"`));
+    this.set(`${key}.expiry`, moment(new Date()).add(value).unix(), {});
   }
 
   /**
    *
    * @param {String} key  "insert your key"
-   * @param {*} ops
+
    * @returns
    */
-  get(key, ops) {
-    if (this.Cache && this.cache.has(key, ops || {}))
-      return this.cache.get(key, ops || {});
+  get(key) {
+    if (this.Cache && this.cache.has(key, {})) return this.cache.get(key, {});
 
-    return this.dbtable.get(key, ops || {});
+    return this.dbtable.get(key, {});
   }
 
   /**
    *
    * @param {String} key  "insert your key"
-   * @param {*} ops
+
    * @returns
    */
-  has(key, ops) {
-    if (this.Cache && this.cache.has(key, ops || {}))
-      return this.cache.has(key, ops || {});
+  has(key) {
+    if (this.Cache && this.cache.has(key, {})) return this.cache.has(key, {});
 
-    return this.dbtable.has(key, ops || {});
+    return this.dbtable.has(key, {});
   }
 
   /**
    *
    * @param {String} key  "insert your key"
-   * @param {*} ops
-   */
-  delete(key, ops) {
-    if (this.Cache) this.cache.delete(key, ops || {});
 
-    this.dbtable.delete(key, ops || {});
+   */
+  delete(key) {
+    if (this.Cache) this.cache.delete(key, {});
+
+    this.dbtable.delete(key, {});
   }
 
   /**
@@ -234,39 +189,49 @@ module.exports = class Database {
     });
   }
 
-  /**
-   *
-   * @param {String} key  "insert your key"
-   * @param {String} value  "insert your value"
-   * @param {*} ops
-   * @returns
-   */
-  add(key, value, ops) {
-    let setValue = this.get(key, ops);
-    if (this.Cache) this.cache.set(key, setValue + value, ops || {});
-    this.dbtable.add(key, value, ops || {});
+  remove(key, func) {
+    const data = this.get(key);
+    const criteria = _.isFunction(func) ? func : (value) => func === value;
+    const index = data.findIndex(criteria);
+    if (index > -1) {
+      data.splice(index, 1);
+    }
+    return this.set(key, data);
   }
 
   /**
    *
    * @param {String} key  "insert your key"
    * @param {String} value  "insert your value"
-   * @param {*} ops
+
    * @returns
    */
-  subtract(key, value, ops) {
-    let setValue = this.get(key, ops);
-    if (this.Cache) this.cache.set(key, setValue - value, ops || {});
-    this.dbtable.subtract(key, value, ops || {});
+  add(key, value) {
+    let setValue = this.get(key);
+    if (this.Cache) this.cache.set(key, setValue + value, {});
+    this.dbtable.add(key, value, {});
   }
 
   /**
    *
-   * @param {*} ops
+   * @param {String} key  "insert your key"
+   * @param {String} value  "insert your value"
+
    * @returns
    */
-  all(ops) {
-    var dbarr = this.dbtable.all(ops || {});
+  subtract(key, value) {
+    let setValue = this.get(key);
+    if (this.Cache) this.cache.set(key, setValue - value, {});
+    this.dbtable.subtract(key, value, {});
+  }
+
+  /**
+   *
+
+   * @returns
+   */
+  all() {
+    var dbarr = this.dbtable.all({});
     const array = [];
     for (var i = 0; i < dbarr.length; i++) {
       array.push({
@@ -281,10 +246,10 @@ module.exports = class Database {
    *
    * @param {String} key  "insert your key"
    * @param {String} value  "insert your value"
-   * @param {*} ops
+
    */
-  push(key, value, ops) {
-    this.dbtable.push(key, value, ops || {});
+  push(key, value) {
+    this.dbtable.push(key, value, {});
     let Push;
     if (this.Cache) Push === this.get(key);
     this.cache.set(key, Push);
@@ -292,12 +257,11 @@ module.exports = class Database {
   /**
    * @param {String} key  "insert your key"
    * @param {String} value  "insert your value"
-   * @param {*} ops
+
    */
-  pull(key, value, ops) {
-    const array = this.dbtable.get(key, ops || {});
-    if (!Array.isArray(array))
-      throw new Error(pico.red(`${key} is not an array`));
+  pull(key, value) {
+    const array = this.dbtable.get(key, {});
+    if (!Array.isArray(array)) throw new Error(pico.red(`${key} is not an array`));
     array.forEach((Value, Index) => {
       if (value === Value) {
         array.splice(Index, 1);
@@ -308,24 +272,22 @@ module.exports = class Database {
 
   /**
    * @param {String} key  "insert your key"
-   * @param {*} ops
+
    */
-  sort(key, ops) {
-    const array = this.dbtable.get(key, ops || {});
-    if (!Array.isArray(array))
-      throw new Error(pico.red(`${key} is not an array`));
+  sort(key) {
+    const array = this.dbtable.get(key, {});
+    if (!Array.isArray(array)) throw new Error(pico.red(`${key} is not an array`));
     array.sort((a, b) => (a > b ? 1 : -1));
     return array;
   }
 
   /**
    * @param {String} key  "insert your key"
-   * @param {*} ops
+
    */
-  reverse(key, ops) {
-    const array = this.dbtable.get(key, ops || {});
-    if (!Array.isArray(array))
-      throw new Error(pico.red(`${key} is not an array`));
+  reverse(key) {
+    const array = this.dbtable.get(key, {});
+    if (!Array.isArray(array)) throw new Error(pico.red(`${key} is not an array`));
     array.reverse();
     return array;
   }
@@ -335,10 +297,7 @@ module.exports = class Database {
    */
   ClearCache() {
     if (this.Cache) this.cache.clear();
-    if (this.verbose && !this.Cache)
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
-      );
+    if (this.verbose && !this.Cache) console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`);
   }
 
   /**
@@ -346,18 +305,13 @@ module.exports = class Database {
    * not recomended for repeated looping
    */
   reCache() {
-    if (this.verbose && !this.Cache)
-      return console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`
-      );
+    if (this.verbose && !this.Cache) return console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`);
 
     const needCache = this.dbtable.all();
     needCache.forEach(async (value, key) => {
       if (this.verbose)
         console.log(
-          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-            `Caching:`
-          )} ${JSON.stringify({
+          `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Caching:`)} ${JSON.stringify({
             ID: value.ID,
             value: value.data,
           })}`
@@ -365,9 +319,7 @@ module.exports = class Database {
       this.cache.set(value.ID, value.data);
     });
     if (this.verbose) {
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`
-      );
+      console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.green(`reCaching Complete!`)}`);
     }
   }
 
@@ -376,9 +328,7 @@ module.exports = class Database {
    */
   cacheSize() {
     if (this.verbose && !this.Cache) {
-      return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(
-        `Did not set caching!`
-      )}`;
+      return `${pico.magenta(`[VERBOSE]`)} ${pico.blue(`Did not set caching!`)}`;
     } else if (this.Cache) return this.cache.size;
   }
 
@@ -387,40 +337,22 @@ module.exports = class Database {
    * @param {String|Optional} name name of your backup file
    */
   async backup(options = {}) {
-    if (!options.name)
-      options.name ===
-        `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
+    if (!options.name) options.name === `backup-${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
     if (!options.path) options.path === "./";
 
     if (options.path.slice(-1) !== "/") options.path += "/";
 
     options.name = options.name.split(" ").join("-");
 
-    if (
-      options.name.includes(
-        "/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"
-      )
-    )
+    if (options.name.includes("/" || "\\" || "?" || "*" || '"' || ":" || "<" || ">"))
       throw TypeError(`
-        ${pico.red(
-          `Backup database names cannot include there special characters: `
-        )}/\\?*":<>`);
+        ${pico.red(`Backup database names cannot include there special characters: `)}/\\?*":<>`);
 
     const dbName = options.path + options.name;
 
-    let paused = false;
     if (this.verbose) {
-      await this.dbtable.backup(dbName, {
-        progress({ totalPages: t, remainingPages: r }) {
-          console.log(`progress: ${(((t - r) / t) * 100).toFixed(1)}%`);
-          return paused ? 0 : 200;
-        },
-      });
-      return console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(
-          `Backedup your Database as:`
-        )} ${dbName}.sqlite`
-      );
+      await this.dbtable.backup(dbName);
+      return console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.green(`Backedup your Database as:`)} ${dbName}.sqlite`);
     } else await this.dbtable.backup(dbName);
   }
 
@@ -429,11 +361,21 @@ module.exports = class Database {
    */
   close() {
     this.dbtable.close();
-    if (this.verbose)
-      console.log(
-        `${pico.magenta(`[VERBOSE]`)} ${pico.green(
-          `Successfully closed`
-        )} ${JSON.stringify(this.dbtable)}`
-      );
+    if (this.verbose) console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.green(`Successfully closed`)} ${JSON.stringify(this.dbtable)}`);
+  }
+  
+  /**
+   * @param array array of keys and values in objects
+   * [{key: "KEY-1", value: "VALUE-1"}, {key: "KEY-2", value: "VALUE-2"}, {key: "KEY-3", value: "VALUE-3"}]
+   */
+  setMany(keys) {
+    if (typeof keys !== "object") throw TypeError(`${pico.red(`Must be an array`)}`);
+    for (let i = 0; i < keys.length; i++) {
+      if (typeof keys[i].key === undefined || null) break;
+      if (typeof keys[i].value === undefined || null) break;
+      if (keys[i].key === "") break;
+      if (keys[i].value === "") break;
+      this.set(keys[i].key, keys[i].value);
+    }
   }
 };

@@ -141,3 +141,5 @@ backup.js
 Databases/
 **/.vscode/**
 ./build/
+text.txt
+.prettierrc.json

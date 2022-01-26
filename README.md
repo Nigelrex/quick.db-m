@@ -131,6 +131,10 @@ console.log(db.pull("an Array", "b r u h meme")); // removes "b r u h meme" from
 console.log(db.sort("an Array")); // sorts the array and returns "Strings" in the first and then the "Numbers"
 
 console.log(db.reverse("an Array")); // reverses the array
+
+console.log(db.remove("an Array", (value) => value === "b r u h meme")); // removes "b r u h meme" from the array
+
+db.setMany([{key: "KEY-1", value: "VALUE-1"}, {key: "KEY-2", value: "VALUE-2"}, {key: "KEY-3", value: "VALUE-3"}])
 ```
 
 #

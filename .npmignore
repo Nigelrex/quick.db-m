@@ -11,3 +11,5 @@ mydatabasename.db
 ./build/*
 ./build/**
 **/build/*
+text.txt
+.prettierrc.json
