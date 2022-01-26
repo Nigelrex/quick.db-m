@@ -1,51 +1,51 @@
 {
-	"$schema": "http://json.schemastore.org/package",
-	"name": "quick.db-map",
-	"description": "quick.db-map is a quick.db extention which allows",
-	"version": "1.0.13",
-	"license": "GPL-3.0",
-	"author": "Nigelrex",
-	"main": "./index.js",
-	"keywords": [
-		"quick.db",
-		"map",
-		"database",
-		"db",
-		"quick.db-map",
-		"json",
-		"storing",
-		"values",
-		"easy",
-		"quick",
-		"sqlite",
-		"sqlite3",
-		"db"
-	],
-	"scripts": {
-		"test": "nodemon test.js",
-		"publish": "prettier --write . && npm publish"
-	},
-	"engines": {
-		"node": ">=16.6.0",
-		"npm": ">=7.20.0"
-	},
-	"dependencies": {
-		"fs-extra": "^10.0.0",
-		"lodash": "^4.17.21",
-		"moment": "^2.29.1",
-		"ms": "2.1.3",
-		"picocolors": "^1.0.0",
-		"quick.db": "github:nigelrex/quick.db"
-	},
-	"devDependencies": {
-		"prettier": "2.3.2"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Nigelrex/quick.db-map.git"
-	},
-	"bugs": {
-		"url": "https://github.com/Nigelrex/quick.db-map/issues"
-	},
-	"homepage": "https://github.com/Nigelrex/quick.db-map#readme"
+  "$schema": "http://json.schemastore.org/package",
+  "name": "quick.db-map",
+  "description": "quick.db-map is a quick.db extention which allows",
+  "version": "1.0.14",
+  "license": "GPL-3.0",
+  "author": "Nigelrex",
+  "main": "./index.js",
+  "keywords": [
+    "quick.db",
+    "map",
+    "database",
+    "db",
+    "quick.db-map",
+    "json",
+    "storing",
+    "values",
+    "easy",
+    "quick",
+    "sqlite",
+    "sqlite3",
+    "db"
+  ],
+  "scripts": {
+    "test": "nodemon test.js",
+    "publish": "prettier --write . && npm publish"
+  },
+  "engines": {
+    "node": ">=16.6.0",
+    "npm": ">=7.20.0"
+  },
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "ms": "2.1.3",
+    "picocolors": "^1.0.0",
+    "quick.db": "github:nigelrex/quick.db"
+  },
+  "devDependencies": {
+    "prettier": "2.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nigelrex/quick.db-map.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Nigelrex/quick.db-map/issues"
+  },
+  "homepage": "https://github.com/Nigelrex/quick.db-map#readme"
 }

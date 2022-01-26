@@ -124,8 +124,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
-   * @param {String} value  "insert your value"
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
 
    */
   set(key, value) {
@@ -146,7 +146,7 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
+   * @param {String} key  insert your key
 
    * @returns
    */
@@ -158,7 +158,7 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
+   * @param {String} key  insert your key
 
    * @returns
    */
@@ -170,7 +170,7 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
+   * @param {String} key  insert your key
 
    */
   delete(key) {
@@ -189,6 +189,10 @@ module.exports = class Database {
     });
   }
 
+  /**
+   * @param key insert your key
+   * @param func insert your function (value)=>value === "<ur value>"
+   */
   remove(key, func) {
     const data = this.get(key);
     const criteria = _.isFunction(func) ? func : (value) => func === value;
@@ -201,8 +205,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
-   * @param {String} value  "insert your value"
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
 
    * @returns
    */
@@ -214,8 +218,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
-   * @param {String} value  "insert your value"
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
 
    * @returns
    */
@@ -244,8 +248,8 @@ module.exports = class Database {
 
   /**
    *
-   * @param {String} key  "insert your key"
-   * @param {String} value  "insert your value"
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
 
    */
   push(key, value) {
@@ -255,8 +259,8 @@ module.exports = class Database {
     this.cache.set(key, Push);
   }
   /**
-   * @param {String} key  "insert your key"
-   * @param {String} value  "insert your value"
+   * @param {String} key  insert your key
+   * @param {String} value  insert your value
 
    */
   pull(key, value) {
@@ -271,7 +275,7 @@ module.exports = class Database {
   }
 
   /**
-   * @param {String} key  "insert your key"
+   * @param {String} key  insert your key
 
    */
   sort(key) {
@@ -282,7 +286,7 @@ module.exports = class Database {
   }
 
   /**
-   * @param {String} key  "insert your key"
+   * @param {String} key  insert your key
 
    */
   reverse(key) {
@@ -363,7 +367,7 @@ module.exports = class Database {
     this.dbtable.close();
     if (this.verbose) console.log(`${pico.magenta(`[VERBOSE]`)} ${pico.green(`Successfully closed`)} ${JSON.stringify(this.dbtable)}`);
   }
-  
+
   /**
    * @param array array of keys and values in objects
    * [{key: "KEY-1", value: "VALUE-1"}, {key: "KEY-2", value: "VALUE-2"}, {key: "KEY-3", value: "VALUE-3"}]
