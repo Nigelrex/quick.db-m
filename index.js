@@ -118,7 +118,7 @@ module.exports = class Database {
    * @param {String} code
    * @returns code
    */
-  __async(code) {
+  async __async(code) {
     return await code;
   }
 
